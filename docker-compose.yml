@@ -1,0 +1,25 @@
+services:
+  api:
+    build: .
+    container_name: gallery-museum-api
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: gallery-museum-ngrok
+    restart: unless-stopped
+    command: http api:8000 --log=stdout
+    environment:
+      - NGROK_AUTHTOKEN=2iJXTLmwxWNwdCigiNlx8Fa46J3_4e8KCo3CMEnjCKWF2PeHS
+    ports:
+      - "4040:4040"
+    depends_on:
+      api:
+        condition: service_healthy
